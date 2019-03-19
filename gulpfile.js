@@ -9,11 +9,11 @@ const autoprefixer = require('gulp-autoprefixer');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 const livereload = require("gulp-livereload");
-
-
+const http = require("http");
+const st = require('st');
 
 gulp.task('style',function () {
-    sass('assets/scss/**/*.scss',{ style: 'expanded' })
+    return sass('assets/scss/**/*.scss',{ style: 'expanded' })
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
         .pipe(gulp.dest('assets/css/'))
         .pipe(livereload());
@@ -35,10 +35,20 @@ gulp.task('mincss',function () {
         .pipe(gulp.dest('assets/'))
 });
 
+gulp.task('html-reload', function() {
+    return gulp.src(['index.html']).pipe(livereload());
+});
 
 gulp.task('watch',function () {
     livereload.listen();
-    gulp.watch('assets/scss/**/*.scss',['style'])
+    gulp.watch(['assets/scss/**/*.scss'], gulp.series('style'))
+    gulp.watch(['index.html'], gulp.series('html-reload'))
 });
 
-gulp.task('default',['style','watch']);
+gulp.task('server', function(done) {
+    http.createServer(
+      st({ path: __dirname + '/', index: 'index.html', cache: false })
+    ).listen(8080, done);
+  });
+
+gulp.task('default',gulp.series('server','style','watch'));

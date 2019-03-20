@@ -4,7 +4,7 @@
 
 'use strict';
 const gulp = require('gulp');
-const sass = require("gulp-ruby-sass");
+const sass = require("gulp-sass");
 const autoprefixer = require('gulp-autoprefixer');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
@@ -13,7 +13,8 @@ const http = require("http");
 const st = require('st');
 
 gulp.task('style',function () {
-    return sass('assets/scss/**/*.scss',{ style: 'expanded' })
+    return gulp.src('assets/scss/**/*.scss')
+        .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
         .pipe(gulp.dest('assets/css/'))
         .pipe(livereload());
